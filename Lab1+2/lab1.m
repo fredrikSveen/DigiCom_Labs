@@ -1,0 +1,224 @@
+%% Lab 1
+%Importing the given signals with cyclic prefix
+pss;
+
+%% Exercise 1.1 - PSS signals
+%Q1
+figure
+subplot(311)
+plot(real(pss2_t))
+title('Real part of $pss0_t$','Interpreter','latex');
+%We see the real signal is symmetric
+%The symmetry is not perfect, because of the extension.
+
+subplot(312)
+plot(imag(pss2_t))
+title('Imaginary part of $pss0_t$','Interpreter','latex');
+% The imaginary part is antisymmetric.
+
+subplot(313)
+plot(20*log10(abs(pss2_t))) %Decibel scale
+title('Magnitude of $pss0_t$ [dB]','Interpreter','latex');
+%The magnitude is also symmetric.
+
+%%
+%Q2
+Fs = 61.44*10^6;
+N = 2192;
+step_size = Fs/N;
+
+%Find the shifted power spectrum of pss0_t
+Sx = fftshift(20*log10(abs(fft(pss0_t))));
+
+figure
+plot(Sx)
+title('Power spectrum of $pss0_t$ [dB]','Interpreter','latex');
+
+BW_number = length(find(Sx>-10));
+BW = BW_number*step_size;
+%The bandwidth is 4.01MHz.
+%The signal has a quite good SNR, since we easily can detect a bandwidth
+%from the power spectrum. Meaning it's not noisy.
+
+%% 
+% Q3 - Auto-correlation and cross-correlation
+[acf0,lags0] = xcorr(pss0_t);
+[acf1,lags1] = xcorr(pss1_t);
+[acf2,lags2] = xcorr(pss2_t);
+r_01 = xcorr(pss0_t, pss1_t);
+r_12 = xcorr(pss1_t, pss2_t);
+r_02 = xcorr(pss0_t, pss2_t);
+
+x = linspace(-4383/2,4383/2, 4383);
+
+figure
+subplot(321)
+plot(x,real(acf0))
+title('Real part of the auto-correlation of $pss0_t$.','interpreter','latex');
+subplot(322)
+plot(x,imag(acf0))
+title('Imaginary part of the auto-correlation of $pss0_t$.','interpreter','latex');
+subplot(323)
+plot(x,real(acf1))
+title('Real part of the auto-correlation of $pss1_t$.','interpreter','latex');
+subplot(324)
+plot(x,imag(acf1))
+title('Imaginary part of the auto-correlation of $pss1_t$.','interpreter','latex');
+subplot(325)
+plot(x,real(acf2))
+title('Real part of the auto-correlation of $pss2_t$.','interpreter','latex');
+subplot(326)
+plot(x,imag(acf2))
+title('Imaginary part of the auto-correlation of $pss2_t$.','interpreter','latex')
+
+figure
+subplot(321)
+plot(x,real(r_01))
+title('Real part of the cross-correlation between $pss0_t$ and $pss1_t$.','interpreter','latex');
+subplot(322)
+plot(x,imag(r_01))
+title('Imaginary part of the cross-correlation between $pss0_t$ and $pss1_t$.','interpreter','latex');
+subplot(323)
+plot(x,real(r_12))
+title('Real part of the cross-correlation between $pss1_t$ and $pss2_t$.','interpreter','latex');
+subplot(324)
+plot(x,imag(r_12))
+title('Imaginary part of the cross-correlation between $pss1_t$ and $pss2_t$.','interpreter','latex');
+subplot(325)
+plot(x,real(r_02))
+title('Real part of the cross-correlation between $pss0_t$ and $pss2_t$.','interpreter','latex');
+subplot(326)
+plot(x,imag(r_02))
+title('Imaginary part of the cross-correlation between $pss0_t$ and $pss2_t$.','interpreter','latex');
+%By observing the plotted correlations, we see that for 0 lag the
+%correlation is roughly about 0. This is valid for all the
+%cross-correlations, and this means that we can consider them as orthogonal
+
+%% Exercise 1.2 - Channel model
+%Import signals to workspace
+load('rxsignal_justnoise.mat');
+load('rxsignal_withchannel.mat');
+load('rxsignal_withchannelandfreqoff');
+
+%Important values about sampling and signals
+Fs = 61.44*10^6;
+N1 = length(rxs0);
+N2 = length(rxs2);
+N3 = length(rxs3);
+sample_len = 1/Fs;
+mult = 10^6;
+
+%Time domain parameters
+t1 = linspace(0, mult*N1*sample_len, N1);
+t2 = linspace(0, mult*N2*sample_len, N2);
+t3 = linspace(0, mult*N3*sample_len, N3);
+
+%Frequency domain parameters and transforms
+fft0 = 20*log10(abs(fftshift(fft(rxs0))));
+fft2 = 20*log10(abs(fftshift(fft(rxs2))));
+fft3 = 20*log10(abs(fftshift(fft(rxs3))));
+f0 = linspace(-Fs/2, Fs/2, length(fft0));
+f2 = linspace(-Fs/2, Fs/2, length(fft2));
+f3 = linspace(-Fs/2, Fs/2, length(fft3));
+
+figure
+subplot(321)
+plot(20*log10(abs(rxs0)))
+title('rxs0 time domain')
+ylabel('Magnitude')
+subplot(322)
+plot(f0, fft0)
+title('rxs0 frequency domain')
+ylabel('[dB]');
+
+subplot(323)
+plot(t2, 20*log10(abs(rxs2)))
+title('rxs2 time domain')
+ylabel('Magnitude')
+subplot(324)
+plot(f2, fft2)
+title('rxs2 frequency domain')
+ylabel('[dB]');
+
+subplot(325)
+plot(t3, 20*log10(abs(rxs3)))
+title('rxs3 time domain')
+xlabel('Time [$\mu$s]','Interpreter','latex')
+ylabel('Magnitude')
+subplot(326)
+plot(f3, fft3)
+title('rxs3 frequency domain')
+xlabel('Frequency [Hz]','Interpreter','latex')
+ylabel('[dB]');
+
+%Q1.2.2: We see that the actual signal is a happening almost at the
+%beginning of the received signal.
+
+
+%Bandwidth of rxs0
+f_step0 = Fs/length(fft0);
+lim0 = 94;
+over_limit0 = find(fft0>lim0);
+BW0 = (over_limit0(length(over_limit0))-over_limit0(1))*f_step0;
+
+%Bandwidth of rxs2
+f_step2 = Fs/length(fft2);
+lim2 = 110;
+over_limit2 = find(fft2>lim2);
+BW2 = (over_limit2(length(over_limit2))-over_limit2(1))*f_step2;
+
+%Bandwidth of rxs3
+f_step3 = Fs/length(fft3);
+lim3 = 110;
+over_limit3 = find(fft3>lim3);
+BW3 = (over_limit3(length(over_limit3))-over_limit3(1))*f_step3;
+
+%We see that all the signals have a bandwidth of ~7,2MHz.
+
+% The signal components located outside of the band of interest may be
+% several things: noise in the the receivers electronics, interfering
+% signals from unknown/unwanted transmitters or overharmonics.
+
+%1.2.4: The main contribution to the "changing shape" of the main signal
+%component is the noise in the channel. My argument for this, is that the
+%main signal component is almost identical for all three signals. And the
+%noise is the only common signal contribution.
+
+%% Exercise 1.3 - Receiver
+subplot(311)
+plot(abs(conv(fliplr(conj(pss0_t)),(rxs0))));
+subplot(312)
+plot(abs(conv(fliplr(conj(pss1_t)),(rxs0))));
+subplot(313)
+plot(abs(conv(fliplr(conj(pss2_t)),(rxs0))));
+
+%From inspecting the plot, we see that the pss2_t signal is the one present
+%in the received signal rxs0. The reason is that the convolution between
+%the received signal and pss2_t has the one component way bigger than the
+%others. This component is actually related to the delay N_f, which I will
+%find below.
+
+[y_max, x_max] = max(abs(conv(fliplr(conj(pss2_t)),rxs3)));
+NF = x_max-(length(pss2_t)-1);
+
+
+
+r_pss = rxs3(NF+(0:length(pss2_t)-1));
+%r_pss = rxs0(NF_tmp-(0:length(pss2_t)-1));
+
+x = linspace(-75,75,151);
+n = 0:(length(r_pss)-1);
+dfmin = 100;
+
+offset_rpss = zeros(length(x),length(pss2_t));
+
+for m = -75:1:75
+    offset_rpss(m+76,:) = conj(pss2_t).*exp(-2*1i*pi*n*m*dfmin/Fs);
+end
+Y = abs(offset_rpss*r_pss).^2;
+figure
+plot(x,Y)
+
+[max_value_Y, max_pos_Y] = max(Y);
+freq_offset = (max_pos_Y-75)*dfmin;
+save('rpss.mat','r_pss')
