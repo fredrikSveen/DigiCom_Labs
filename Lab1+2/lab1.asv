@@ -104,62 +104,49 @@ load('rxsignal_withchannelandfreqoff');
 %Important values about sampling and signals
 Fs = 61.44*10^6;
 N0 = length(rxs0);
-N1 = length(rxs1);
 N2 = length(rxs2);
 N3 = length(rxs3);
 sample_len = 1/Fs;
 mult = 10^6;
 
 %Time domain parameters
-t0 = linspace(0, mult*N0*sample_len, N0);
-t1 = linspace(0, mult*N1*sample_len, N1);
+t1 = linspace(0, mult*N0*sample_len, N0);
 t2 = linspace(0, mult*N2*sample_len, N2);
 t3 = linspace(0, mult*N3*sample_len, N3);
 
 %Frequency domain parameters and transforms
 fft0 = 20*log10(abs(fftshift(fft(rxs0))));
-fft1 = 20*log10(abs(fftshift(fft(rxs1))));
 fft2 = 20*log10(abs(fftshift(fft(rxs2))));
 fft3 = 20*log10(abs(fftshift(fft(rxs3))));
 f0 = linspace(-Fs/2, Fs/2, length(fft0));
-f1 = linspace(-Fs/2, Fs/2, length(fft1));
 f2 = linspace(-Fs/2, Fs/2, length(fft2));
 f3 = linspace(-Fs/2, Fs/2, length(fft3));
 
 figure
-subplot(421)
-plot(t0, 20*log10(abs(rxs0)))
+subplot(321)
+plot(t1, 20*log10(abs(rxs0)))
 title('rxs0 time domain')
 ylabel('Magnitude')
-subplot(422)
+subplot(322)
 plot(f0, fft0)
 title('rxs0 frequency domain')
 ylabel('[dB]');
 
-subplot(423)
-plot(t1, 20*log10(abs(rxs1)))
-title('rxs1 time domain')
-ylabel('Magnitude')
-subplot(424)
-plot(f1, fft1)
-title('rxs1 frequency domain')
-ylabel('[dB]');
-
-subplot(425)
+subplot(323)
 plot(t2, 20*log10(abs(rxs2)))
 title('rxs2 time domain')
 ylabel('Magnitude')
-subplot(426)
+subplot(324)
 plot(f2, fft2)
 title('rxs2 frequency domain')
 ylabel('[dB]');
 
-subplot(427)
+subplot(325)
 plot(t3, 20*log10(abs(rxs3)))
 title('rxs3 time domain')
 xlabel('Time [$\mu$s]','Interpreter','latex')
 ylabel('Magnitude')
-subplot(428)
+subplot(326)
 plot(f3, fft3)
 title('rxs3 frequency domain')
 xlabel('Frequency [Hz]','Interpreter','latex')
