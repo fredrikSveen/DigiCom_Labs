@@ -199,12 +199,15 @@ BW3 = (over_limit3(length(over_limit3))-over_limit3(1))*f_step3;
 %noise is the only common signal contribution.
 
 %% Exercise 1.3 - Receiver
+% Convolution of between the received signal and the possible PSS signals
+figure
 subplot(311)
 plot(abs(conv(fliplr(conj(pss0_t)),(rxs0))));
 subplot(312)
 plot(abs(conv(fliplr(conj(pss1_t)),(rxs0))));
 subplot(313)
 plot(abs(conv(fliplr(conj(pss2_t)),(rxs0))));
+xlabel('Sample delay')
 
 %From inspecting the plot, we see that the pss2_t signal is the one present
 %in the received signal rxs0. The reason is that the convolution between
@@ -212,13 +215,12 @@ plot(abs(conv(fliplr(conj(pss2_t)),(rxs0))));
 %others. This component is actually related to the delay N_f, which I will
 %find below.
 
-[y_max, x_max] = max(abs(conv(fliplr(conj(pss2_t)),rxs3)));
+[y_max, x_max] = max(abs(conv(fliplr(conj(pss2_t)),rxs2)));
 NF = x_max-(length(pss2_t)-1);
 
 
 
 r_pss = rxs3(NF+(0:length(pss2_t)-1));
-%r_pss = rxs0(NF_tmp-(0:length(pss2_t)-1));
 
 x = linspace(-75,75,151);
 n = 0:(length(r_pss)-1);
@@ -231,7 +233,8 @@ for m = -75:1:75
 end
 Y = abs(offset_rpss*r_pss).^2;
 figure
-plot(x,Y)
+plot(dfmin*x,Y)
+xlabel('Frequency offset')
 
 [max_value_Y, max_pos_Y] = max(Y);
 freq_offset = (max_pos_Y-75)*dfmin;

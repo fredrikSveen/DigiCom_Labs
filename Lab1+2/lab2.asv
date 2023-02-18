@@ -67,7 +67,7 @@ figure
 scatter(real(SSS),imag(SSS))
 
 %% Exercise 3
-%Simply do multiplication, since it's in frequency domain.
+%Simply do multiplicatio
 res = conj(d(3:3:size(d,1),:))*SSS;
 [seq_val, seq_id] = max(abs(res));
 figure(7);
